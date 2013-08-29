@@ -1,0 +1,24 @@
+﻿div.AlchemySlider
+{
+    overflow: hidden;
+    position: relative;
+    height: 768px;
+}
+
+div.AlchemySlider div.AlchemySliderShield
+{
+    width: 200%;
+}
+
+div.AlchemySlider div.AlchemySliderShield ul
+{
+    display: block;
+    list-style: none;
+    width: auto;
+}
+
+div.AlchemySlider div.AlchemySliderShield ul li
+{
+    float: left;
+    display: block;
+}
