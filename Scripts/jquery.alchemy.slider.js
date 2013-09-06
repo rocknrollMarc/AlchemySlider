@@ -17,6 +17,7 @@
             horizontalShowSpeed: 0,
             heightSetting: "auto",
             widthSetting: "auto",
+            dotCollectionContainerId : null,
             onSlide: function (e) { }
         }
 
@@ -27,6 +28,12 @@
         beginSliding = function (parent, chosenOptions) {
             var thisTimer = parent.attr("IntervalId");
             var firstLi = parent.find('li').first();
+
+            var i = 1;
+            parent.find('li').each(function () {
+                $(this).attr("SlideNumber", i);
+                i++;
+            });
 
             // if they manually specified a height then use it, otherwise base the height off of the first li
             // in the future, we should make this find the tallest li
@@ -59,6 +66,10 @@
                     });
             });
 
+            if (chosenOptions.dotCollectionContainerId) {
+                createDots(parent, $('#' + chosenOptions.dotCollectionContainerId));
+            }
+
             // setup our "pause on hover" event
             parent.unbind();
             parent.bind('mouseenter', function () {
@@ -84,7 +95,6 @@
 
             // now that we have an interval, save that info to the element for future use
             parent.attr("IntervalId", thisTimer);
-            
         }
 
         // the actual code to move an element from the first item (currently showing) to the last item
@@ -103,6 +113,7 @@
                 marginLeft: -firstItemWidth
             }, chosenOptions.slideSpeed, function () {
                 firstItem.remove();
+                chosenOptions.onSlide(parent.find('ul').first());
             });
 
         }
@@ -137,6 +148,30 @@
             var dOptions = parent.attr("SliderSettings") || {};
             var rOptions = jQuery.parseJSON(dOptions);
             return rOptions;
+        }
+
+        // code to create a list of hotlinks that will control the slider.
+        // if the user has passed in a container that isn't a UL, then add a UL and use that.
+        createDots = function (parent, container) {
+            if (container.type != 'ul') {
+                container.append('<ul class="CreatedDots"></ul>');
+                container = container.find('ul.CreatedDots').first();
+            }
+
+            // clear out all existing dots
+            container.html('');
+
+            parent.find('li').each(function () {
+                container.append('<li class="Dot"></li>');
+            });
+
+            container.on('click', 'li', function () {
+                alert("test");
+            });
+        }
+
+        slideToImage = function (mediaId) {
+
         }
 
         // if nothing is selected, return nothing
