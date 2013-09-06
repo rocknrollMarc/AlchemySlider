@@ -67,7 +67,7 @@
             });
 
             if (chosenOptions.dotCollectionContainerId) {
-                createDots(parent, $('#' + chosenOptions.dotCollectionContainerId));
+                createDots(parent, chosenOptions, $('#' + chosenOptions.dotCollectionContainerId));
             }
 
             // setup our "pause on hover" event
@@ -152,9 +152,11 @@
 
         // code to create a list of hotlinks that will control the slider.
         // if the user has passed in a container that isn't a UL, then add a UL and use that.
-        createDots = function (parent, container) {
+        createDots = function (parent, chosenOptions, container) {
             if (container.type != 'ul') {
-                container.append('<ul class="CreatedDots"></ul>');
+                if (container.find('ul.CreatedDots').length == 0) {
+                    container.append('<ul class="CreatedDots"></ul>');
+                }
                 container = container.find('ul.CreatedDots').first();
             }
 
@@ -162,16 +164,36 @@
             container.html('');
 
             parent.find('li').each(function () {
-                container.append('<li class="Dot"></li>');
+                var $this = $(this);
+                container.append('<li class="Dot" slidenumber="' + $this.attr("slidenumber") + '"></li>');
             });
 
+            container.find('li').unbind();
+
             container.on('click', 'li', function () {
-                alert("test");
+                var slideTo = $(this).attr("slidenumber");
+                slideToImage(parent, chosenOptions, slideTo);
             });
         }
 
-        slideToImage = function (mediaId) {
+        slideToImage = function (parent, chosenOptions, targetMediaId) {
+            pauseSlider(parent, chosenOptions);
+            var current = parent.find('li').first();
+            var currentMediaId = current.attr("slidenumber");
+            var thisList = parent.find('ul').first();
+            while (currentMediaId != targetMediaId) {
+                // grab our first item and copy it
+                var firstItem = thisList.find('li').first();
+                var copiedItem = firstItem.clone();
+                var firstItemWidth = firstItem.width();
 
+                thisList.append(copiedItem);
+                firstItem.remove();
+
+                current = parent.find('li').first();
+                currentMediaId = current.attr("slidenumber");
+            }
+            resumeSlider(parent);
         }
 
         // if nothing is selected, return nothing
