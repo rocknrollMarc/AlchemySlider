@@ -2,7 +2,9 @@
 {
     overflow: hidden;
     position: relative;
-    height: 768px;
+    height: 0px;
+    margin-left: 500px;
+    padding: 0px;
 }
 
 div.AlchemySlider div.AlchemySliderShield
@@ -15,6 +17,7 @@ div.AlchemySlider div.AlchemySliderShield ul
     display: block;
     list-style: none;
     width: auto;
+    padding: 0px;
 }
 
 div.AlchemySlider div.AlchemySliderShield ul li

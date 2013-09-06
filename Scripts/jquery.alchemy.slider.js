@@ -9,27 +9,82 @@
 (function($) {
     $.fn.alchemySlide = function (options) {
 
-            moveFirstToLast = function (parent) {
-                var firstItem = parent.find('li').first();
-                var copiedItem = firstItem.clone();
-                var firstItemWidth = firstItem.width();
-                parent.find('ul').first().append(copiedItem);
+        var internalDefaults = {
+            slideDelay: 5000,
+            slideSpeed: 500,
+            verticalShowSpeed: 250,
+            horizontalShowSpeed: 0,
+            heightSetting: "auto",
+            widthSetting: "auto",
+            onSlide: function (e) { }
+        }
 
-                firstItem.animate({
-                    marginLeft: -firstItemWidth
-                }, 1000, function () {
-                    firstItem.remove();
-                });
+        $.extend(internalDefaults, options);
+            
+        beginSliding = function (parent, chosenOptions) {
+            var thisTimer = parent.attr("IntervalId");
+            var firstLi = parent.find('li').first();
+
+            var showItHeight = 0;
+            if (chosenOptions.heightSetting == "auto") {
+                showItHeight = firstLi.height();
+            }
+            else {
+                showItHeight = chosenOptions.heightSetting;
+            }
+
+            var showItWidth = 0;
+            if (chosenOptions.widthSetting == "auto") {
+                showItWidth = firstLi.width();
+            }
+            else {
+                showItWidth = chosenOptions.heightSetting;
+            }
+
+
+            parent.animate({
+                width: showItWidth + "px"
+                }, chosenOptions.horizontalShowSpeed, function () {
+                    parent.animate({
+                        height: showItHeight + "px"
+                    }, chosenOptions.verticalShowSpeed, function () {
+                    });
+            });
+
+           
+
+            if (thisTimer) {
 
             }
 
-            // if nothing is selected, return nothing
-            if (!this.length) {
-                options && options.debug && window.console && console.warn("nothing selected, returning nothing");
-                return;
-            }
+            thisTimer = window.setInterval(function () {
+                moveFirstToLast(parent, chosenOptions);
+            }, chosenOptions.slideDelay);
+            parent.attr("IntervalId", thisTimer);
+            
+        }
 
-            var $this = $(this);
-            moveFirstToLast($this);
+        moveFirstToLast = function (parent, chosenOptions) {
+            var firstItem = parent.find('li').first();
+            var copiedItem = firstItem.clone();
+            var firstItemWidth = firstItem.width();
+            parent.find('ul').first().append(copiedItem);
+
+            firstItem.animate({
+                marginLeft: -firstItemWidth
+            }, chosenOptions.slideSpeed, function () {
+                firstItem.remove();
+            });
+
+        }
+
+        // if nothing is selected, return nothing
+        if (!this.length) {
+            options && options.debug && window.console && console.warn("nothing selected, returning nothing");
+            return;
+        }
+
+        var $this = $(this);
+        beginSliding($this, internalDefaults);
     };
 }(jQuery));
