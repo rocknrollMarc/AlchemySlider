@@ -66,9 +66,6 @@
                     });
             });
 
-            if (chosenOptions.dotCollectionContainerId) {
-                createDots(parent, chosenOptions, $('#' + chosenOptions.dotCollectionContainerId));
-            }
 
             // setup our "pause on hover" event
             parent.unbind();
@@ -102,21 +99,52 @@
 
             // grab our first item and copy it
             var firstItem = parent.find('li').first();
-            var copiedItem = firstItem.clone();
-            var firstItemWidth = firstItem.width();
-
+            moveItemToLast(parent, chosenOptions, firstItem);
+        }
+		
+		moveItemToLast = function(parent, chosenOptions, targetItem){
+			var firstItemWidth = targetItem.width();
+			var copiedItem = targetItem.clone();
             // then put the replica on the end of the queue so it can watch C-beams glitter in the dark near the Tannhauser gate
             parent.find('ul').first().append(copiedItem);
 
             // move the first item off the screen.  once it is offscreen, remove it.
-            firstItem.animate({
+            targetItem.animate({
                 marginLeft: -firstItemWidth
             }, chosenOptions.slideSpeed, function () {
-                firstItem.remove();
+                targetItem.remove();
                 chosenOptions.onSlide(parent.find('ul').first());
             });
+		}
+		
+		slideThroughN = function (parent, chosenOptions, clickedItem){
+						
+			var allItems = parent.find('li');
+			allItems.finish(true);
+			
+			var firstItem = parent.find('li').first();
+			var currentSlideNumber = firstItem.attr('SlideNumber');
+			var targetSlideNumber = clickedItem.attr('SlideNumber');
+			
+			var toSlide = 0;
+			var totalItems = allItems.length;
 
-        }
+			if (currentSlideNumber < targetSlideNumber)
+			{
+				toSlide = targetSlideNumber - currentSlideNumber;
+			}
+			else if (currentSlideNumber > targetSlideNumber)
+			{
+				toSlide = totalItems - (currentSlideNumber - targetSlideNumber)
+			}
+			
+			var firstX = allItems.splice(0, toSlide);
+			
+			$(firstX).each(function(item){
+				moveItemToLast(parent, chosenOptions, $(this));
+			});
+			
+		}
 
         // code to pause the slider (called on mouseenter)
         pauseSlider = function (parent, chosenOptions, callback) {
@@ -167,15 +195,9 @@
                 var $this = $(this);
                 container.append('<li class="Dot" slidenumber="' + $this.attr("slidenumber") + '"></li>');
             });
-
-            container.find('li').unbind();
-
-            container.on('click', 'li', function () {
-                var slideTo = $(this).attr("slidenumber");
-                slideToImage(parent, chosenOptions, slideTo);
-            });
         }
 
+		/*
         slideToImage = function (parent, chosenOptions, targetMediaId) {
             pauseSlider(parent, chosenOptions);
             var current = parent.find('li').first();
@@ -195,7 +217,8 @@
             }
             resumeSlider(parent);
         }
-
+		*/
+		
         // if nothing is selected, return nothing
         if (!this.length) {
             options && options.debug && window.console && console.warn("nothing selected, returning nothing");
@@ -205,5 +228,18 @@
         // start the slide!
         var $this = $(this);
         beginSliding($this, internalDefaults);
+		
+		if (internalDefaults.dotCollectionContainerId)
+		{
+            createDots($this,internalDefaults, $('#' + internalDefaults.dotCollectionContainerId));
+		
+			var container = $('#' + internalDefaults.dotCollectionContainerId);
+			container.find('li').unbind();
+
+			container.on('click', 'li', function () {
+				pauseSlider($this, internalDefaults);
+				slideThroughN($this, internalDefaults, $(this));
+			});
+		}
     };
 }(jQuery));
